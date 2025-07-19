@@ -28,7 +28,7 @@ test('users can not authenticate with invalid password', function () {
         'password' => 'wrong-password',
     ]);
 
-    $this->assertGuest();
+    $this->assertApp();
 });
 
 test('users can logout', function () {
@@ -36,6 +36,6 @@ test('users can logout', function () {
 
     $response = $this->actingAs($user)->post('/logout');
 
-    $this->assertGuest();
+    $this->assertApp();
     $response->assertRedirect('/');
 });

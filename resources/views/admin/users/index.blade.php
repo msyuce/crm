@@ -8,6 +8,7 @@
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-gray-800">Kullanıcılar</h1>
 
+        {{-- Yeni kullanıcı eklemek için buton --}}
         <a href="{{ route('admin.users.create') }}"
             class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg shadow transition">
             + Yeni Kullanıcı
@@ -28,33 +29,43 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
+                {{-- Kullanıcılar üzerinden döngü --}}
                 @foreach ($users as $user)
                 <tr>
+                    {{-- Kullanıcı ID --}}
                     <td class="px-6 py-4 text-gray-900">{{ $user->id }}</td>
+                    {{-- Kullanıcı İsmi --}}
                     <td class="px-6 py-4 text-gray-900">{{ $user->name }}</td>
+                    {{-- Kullanıcı Email --}}
                     <td class="px-6 py-4 text-gray-900">{{ $user->email }}</td>
+                    {{-- Kullanıcı Rolleri --}}
                     <td class="px-6 py-4 text-gray-900">
                         {{ $user->roles->isNotEmpty()
-                                    ? $user->roles->pluck('name')->join(', ')
-                                    : 'Rol yok' }}
+                                    ? $user->roles->pluck('name')->join(', ')  // Kullanıcıya atanan roller
+                                    : 'Rol yok' }}  {{-- Eğer rol yoksa 'Rol yok' mesajı göster --}}
                     </td>
+                    {{-- Kullanıcı Durumu --}}
                     <td class="px-6 py-4">
                         @if ($user->is_active)
+                        {{-- Aktif kullanıcı için yeşil etiket --}}
                         <span class="px-2 py-1 inline-flex text-xs font-medium rounded-full bg-green-100 text-green-800">
                             Aktif
                         </span>
                         @else
+                        {{-- Pasif kullanıcı için kırmızı etiket --}}
                         <span class="px-2 py-1 inline-flex text-xs font-medium rounded-full bg-red-100 text-red-800">
                             Pasif
                         </span>
                         @endif
                     </td>
                     <td class="px-6 py-4 text-right space-x-2">
+                        {{-- Kullanıcıyı düzenlemek için link --}}
                         <a href="{{ route('admin.users.edit', $user) }}"
                             class="text-indigo-600 hover:text-indigo-900">
                             Düzenle
                         </a>
 
+                        {{-- Kullanıcıyı silmek için form --}}
                         <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="inline"
                             onsubmit="return confirm('Bu kullanıcıyı silmek istediğinize emin misiniz?');">
                             @csrf
@@ -70,7 +81,7 @@
 
     {{-- Sayfalama --}}
     <div class="mt-6">
-        {{ $users->links() }}
+        {{ $users->links() }} {{-- Sayfalama linkleri --}}
     </div>
 </div>
 @endsection

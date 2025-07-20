@@ -2,30 +2,34 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, Notifiable; // HasRoles kaldırıldı
 
     /**
-     * The attributes that are mass assignable.
+     * Toplu veri atamada (mass assignment) kullanılacak alanlar.
+     * 
+     * Buraya 'role' alanını ekliyoruz,
+     * böylece User::create veya update işlemlerinde role atanabilir.
      *
-     * @var array<string>
+     * @var array
      */
     protected $fillable = [
         'name',
         'email',
         'password',
+        'role', // role alanı burada kalıyor
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
+     * Diziye dönüştürmede gizlenecek alanlar.
+     * Örneğin, password ve remember_token güvenlik için gizlenir.
      *
-     * @var array<string>
+     * @var array
      */
     protected $hidden = [
         'password',
@@ -33,26 +37,34 @@ class User extends Authenticatable
     ];
 
     /**
-     * The attributes that should be cast.
+     * Alan dönüşümleri (casts).
+     * 
+     * 'password' burada hash'lenmiş olarak saklanır.
      *
-     * @return array<string, string>
+     * @var array
      */
-    protected function casts(): array
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
+
+    /**
+     * Kullanıcının admin olup olmadığını kontrol eder.
+     *
+     * @return bool
+     */
+    public function isAdmin()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->role === 'admin';
     }
 
     /**
-     * Kullanıcının ait olduğu rolü almak için.
-     * Bu yöntem aslında `HasRoles` trait'inin bir parçasıdır.
-     * Ancak role'leri manuel bağlamamız gerekirse kullanılabilir.
+     * Kullanıcının normal kullanıcı (user) rolünde olup olmadığını kontrol eder.
+     *
+     * @return bool
      */
-    // Bu fonksiyonu kaldırıyoruz çünkü Spatie'nin `HasRoles` trait'i zaten `role()` ilişkisinde işlem yapacaktır.
-    // public function role()
-    // {
-    //     return $this->belongsTo(\Spatie\Permission\Models\Role::class);
-    // }
+    public function isUser()
+    {
+        return $this->role === 'user';
+    }
 }

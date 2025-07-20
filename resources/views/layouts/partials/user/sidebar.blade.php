@@ -5,7 +5,9 @@
         // Kullanıcının giriş yapıp yapmadığını ve rolünü kontrol ediyoruz
         // Eğer admin ise admin.dashboard route'u kullanılır,
         // değilse user.dashboard route'u kullanılır.
-        $dashboardRoute = auth()->check() && auth()->user()->hasRole('admin') ? 'admin.dashboard' : 'user.dashboard';
+        $dashboardRoute = auth()->check() && auth()->user()->role === 'admin'
+            ? 'admin.dashboard'
+            : 'user.dashboard';
     @endphp
 
     <ul>
@@ -18,6 +20,6 @@
             </a>
         </li>
 
-        {{-- İstersen buraya yeni menü öğeleri ekleyebilirsin --}}
+        {{-- Buraya yeni menü öğeleri ekleyebilirsin --}}
     </ul>
 </nav>

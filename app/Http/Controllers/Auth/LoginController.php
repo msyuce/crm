@@ -10,7 +10,7 @@ class LoginController extends Controller
 {
     /**
      * Giriş (login) formunu gösterir.
-     * 
+     *
      * @return \Illuminate\View\View
      */
     public function showLoginForm()
@@ -24,7 +24,7 @@ class LoginController extends Controller
      * Kullanıcının e-posta ve parolasını doğrular.
      * Başarılı ise rolüne göre ilgili dashboard'a yönlendirir.
      * Başarısız ise hata mesajı ile login sayfasına geri döner.
-     * 
+     *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\RedirectResponse
      */
@@ -41,8 +41,8 @@ class LoginController extends Controller
             // 3. Başarılı giriş sonrası, session fixation ataklarına karşı oturumu yenile
             $request->session()->regenerate();
 
-            // 4. Yönlendirme işlemini ayrı bir metod üzerinden yap
-            return redirect()->route('redirect');
+            // 4. Laravel’in login sonrası otomatik çağırdığı redirectTo() metodunu kullanarak yönlendir
+            return redirect()->intended($this->redirectTo());
         }
 
         // 5. Giriş bilgileri yanlışsa tekrar login sayfasına, hata mesajı ile geri dön
@@ -53,41 +53,39 @@ class LoginController extends Controller
 
     /**
      * Giriş başarılı olduktan sonra kullanıcı rolüne göre uygun dashboard'a yönlendirir.
-     * 
-     * Bu metod, Auth::attempt() sonrası çalışır.
-     * Kullanıcının rolüne göre uygun route'a yönlendirme yapar.
-     * Geçersiz veya eksik rol varsa güvenlik için oturumu sonlandırır.
-     * 
-     * @return \Illuminate\Http\RedirectResponse
+     * Laravel’in standart Auth yapısında login sonrası otomatik çağrılır.
+     *
+     * @return string Yönlendirilecek URL
      */
-    public function redirectAfterLogin()
+    protected function redirectTo()
     {
-        // 1. Giriş yapan kullanıcıyı al
-        $user = Auth::user();
+        // Giriş yapan kullanıcıyı al
+        $user = auth()->user();
 
-        // 2. Kullanıcı admin ise admin dashboard'a yönlendir
-        if ($user->hasRole('admin')) {
-            return redirect()->route('admin.dashboard');
+        // Kullanıcı admin ise admin dashboard'a yönlendir
+        if ($user->role === 'admin') {
+            return route('admin.dashboard');
+        }
+        // Kullanıcı normal kullanıcı ise user dashboard'a yönlendir
+        elseif ($user->role === 'user') {
+            return route('user.dashboard');
         }
 
-        // 3. Kullanıcı normal kullanıcı ise user dashboard'a yönlendir
-        if ($user->hasRole('user')) {
-            return redirect()->route('user.dashboard');
-        }
+        // Kullanıcının rolü tanımlı değilse çıkış yap ve login sayfasına yönlendir
+        auth()->logout();
 
-        // 4. Kullanıcının rolü tanımlı değilse çıkış yap ve login sayfasına yönlendir
-        Auth::logout();
+        // Hata mesajını session flash ile ekle
+        session()->flash('error', 'Yetkisiz kullanıcı.');
 
-        return redirect()->route('login')->withErrors([
-            'role' => 'Rolünüz sistemde tanımlı değil.',
-        ]);
+        // Login sayfasına yönlendir
+        return route('login');
     }
 
     /**
      * Kullanıcı oturumunu güvenli bir şekilde sonlandırır (çıkış yapar).
-     * 
+     *
      * Bu metod genellikle üst menüdeki "Çıkış" bağlantısından tetiklenir.
-     * 
+     *
      * @return \Illuminate\Http\RedirectResponse
      */
     public function logout()

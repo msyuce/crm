@@ -2,10 +2,10 @@
     <h2 class="text-xl font-bold mb-6">Admin Panel</h2>
 
     @php
-        // Kullanıcının giriş yapıp yapmadığını ve rolünü kontrol ediyoruz
-        // Eğer admin ise admin.dashboard route'u kullanılır,
-        // değilse user.dashboard route'u kullanılır.
-        $dashboardRoute = auth()->check() && auth()->user()->hasRole('admin') ? 'admin.dashboard' : 'user.dashboard';
+        // Giriş yapmışsa rol kontrolü yapılır
+        $dashboardRoute = auth()->check() && auth()->user()->role === 'admin'
+            ? 'admin.dashboard'
+            : 'user.dashboard';
     @endphp
 
     <ul>
@@ -18,15 +18,17 @@
             </a>
         </li>
 
+        @if(auth()->check() && auth()->user()->role === 'admin')
         <li class="mb-2">
-            {{-- Kullanıcılar sayfasına link --}}
+            {{-- Kullanıcılar sayfasına link (sadece admin görebilir) --}}
             <a href="{{ route('admin.users.index') }}" 
                class="block py-2 px-4 rounded hover:bg-gray-200
                    {{ request()->routeIs('admin.users.*') ? 'bg-gray-200 font-semibold' : '' }}">
                 Kullanıcılar
             </a>
         </li>
+        @endif
 
-        {{-- İstersen buraya yeni menü öğeleri ekleyebilirsin --}}
+        {{-- Yeni menü öğeleri buraya eklenebilir --}}
     </ul>
 </nav>

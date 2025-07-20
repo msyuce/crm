@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 
 class RoleSeeder extends Seeder
 {
@@ -12,8 +11,13 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        Role::firstOrCreate(['name' => 'admin']);
-        Role::firstOrCreate(['name' => 'satış']);
-        Role::firstOrCreate(['name' => 'teknik']);
+        // Admin rolü: Tüm sistemin kontrolüne sahip olan kullanıcı
+        Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
+        
+        // Satış rolü: Müşteri yönetimi ve satış süreçlerinden sorumlu kullanıcı
+        Role::firstOrCreate(['name' => 'satış', 'guard_name' => 'web']);
+        
+        // Teknik rolü: Sistem teknik yönetimi, bakım ve geliştirme işlemleri yapan kullanıcı
+        Role::firstOrCreate(['name' => 'teknik', 'guard_name' => 'web']);
     }
 }
